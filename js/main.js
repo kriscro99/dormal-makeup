@@ -29,6 +29,17 @@ window.DM_OK = true;
   const igProfile = `https://www.instagram.com/${CONFIG.instagram}/`;
   const igDM = `https://ig.me/m/${CONFIG.instagram}`;
 
+  // instant, i kad je u CSS-u uključen smooth scroll
+  const jumpTop = () => {
+    root.style.scrollBehavior = 'auto';
+    window.scrollTo(0, 0);
+    root.style.scrollBehavior = '';
+  };
+  jumpTop();
+  window.addEventListener('load', () => {
+    if (root.classList.contains('is-loading')) jumpTop();
+  });
+
   /* ---------- Loader ---------- */
   const loader = $('#loader');
   const t0 = performance.now();
@@ -47,6 +58,7 @@ window.DM_OK = true;
     launched = true;
     const wait = Math.max(0, minTime - (performance.now() - t0));
     setTimeout(() => {
+      jumpTop();
       if (loader) loader.classList.add('is-done');
       root.classList.remove('is-loading');
       setTimeout(() => root.classList.add('is-ready'), reduced ? 0 : 250);
@@ -497,6 +509,26 @@ window.DM_OK = true;
     hideIO.observe(contact);
     hideIO.observe(footer);
   }
+
+  /* ---------- In-page links: scroll without adding #sekcija to the URL ---------- */
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href^="#"]');
+    if (!link || e.defaultPrevented) return;
+    const id = link.getAttribute('href').slice(1);
+    const target = id === 'top' ? null : document.getElementById(id);
+    if (id !== 'top' && !target) return;
+    e.preventDefault();
+    const behavior = reduced ? 'auto' : 'smooth';
+    if (target) {
+      target.scrollIntoView({ behavior, block: 'start' });
+      if (link.classList.contains('skip')) {
+        target.setAttribute('tabindex', '-1');
+        target.focus({ preventScroll: true });
+      }
+    } else {
+      window.scrollTo({ top: 0, behavior });
+    }
+  });
 
   /* ---------- To top + year ---------- */
   $('#toTop').addEventListener('click', () => window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' }));

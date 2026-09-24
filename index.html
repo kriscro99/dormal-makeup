@@ -31,6 +31,9 @@
     (function () {
       var r = document.documentElement;
       r.classList.add('js');
+      // Osvježavanje uvijek kreće od vrha: bez vraćanja pozicije i bez #sekcije u adresi
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      if (location.hash) history.replaceState(null, '', location.pathname + location.search);
       // Failsafe: ako se skripta ne učita, sadržaj se svejedno prikazuje
       setTimeout(function () {
         if (!window.DM_OK) {
